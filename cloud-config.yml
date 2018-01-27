@@ -174,7 +174,7 @@ runcmd:
 - mkdir /srv/snowflakes
 - chown snowflakes:snowflakes /srv/snowflakes
 - cd /srv/snowflakes
-- sudo -u snowflakes git clone --no-checkout https://github.com/ENCODE-DCC/snovault.git .
+- sudo -u snowflakes git clone --no-checkout https://github.com/T2DREAM/snovault.git .
 - sudo -u snowflakes git checkout %(COMMIT)s
 - mkdir /opt/cloudwatchmon
 - chown build:build /opt/cloudwatchmon
