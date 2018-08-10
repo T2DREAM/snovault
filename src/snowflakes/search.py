@@ -564,7 +564,8 @@ def iter_long_json(name, iterable, other):
         if start is None: # Nothing has bee yielded yet
             yield json.dumps(other)
         else:
-            other_stuff = (',' + json.dumps(other)[1:-1]) if other else '' yield ']' + other_stuff + '}'
+            other_stuff = (',' + json.dumps(other)[1:-1]) if other else '' 
+            yield ']' + other_stuff + '}'
 
 
 
