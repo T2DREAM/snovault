@@ -9,6 +9,7 @@ from sqlalchemy.exc import StatementError
 from snovault import (
     COLLECTIONS,
     DBSESSION,
+    STORAGE
 )
 from snovault.storage import (
     TransactionRecord,
@@ -18,7 +19,7 @@ from .interfaces import (
     ELASTIC_SEARCH,
     INDEXER
 )
-from snovault import CONNECTION
+
 import datetime
 import logging
 import pytz
@@ -39,9 +40,10 @@ def includeme(config):
 
 class IndexerState(object):
     # Keeps track of uuids and indexer state by cycle.  Also handles handoff of uuids to followup indexer
-    def __init__(self, es, key, title='primary'):
+    def __init__(self, es, index, title='primary'):
         self.es = es
-        self.key = key  # "indexerstate"
+        self.key = index  # "indexerstate"
+
         self.title           = title
         self.state_id        = self.title + '_indexer'       # State of the current or last cycle
         self.todo_set        = self.title + '_in_progress'   # one cycle of uuids, sent to the Secondary Indexer
@@ -69,20 +71,20 @@ class IndexerState(object):
     # Private-ish primitives...
     def get_obj(self, id):
         try:
-            return self.es.get(index=self.key, doc_type='meta', id=id).get('_source',{})  # TODO: snovault/meta
+            return self.es.get(index=self.index, doc_type='meta', id=id).get('_source',{})  # TODO: snovault/meta
         except:
             return {}
 
     def put_obj(self, id, obj):
         try:
-            self.es.index(index=self.key, doc_type='meta', id=id, body=obj)
+            self.es.index(index=self.index, doc_type='meta', id=id, body=obj)
         except:
             log.warn("Failed to save to es: " + id, exc_info=True)
 
     def delete_objs(self, ids):
         for id in ids:
             try:
-                self.es.delete(index=self.key, doc_type='meta', id=id)
+                self.es.delete(index=self.index, doc_type='meta', id=id)
             except:
                 pass
 
@@ -330,13 +332,8 @@ def index(request):
         if 'last_xmin' in request.json:
             last_xmin = request.json['last_xmin']
         else:
-            try:
-                status = es.get(index=INDEX, doc_type='meta', id='indexing')
-            except NotFoundError:
-                interval_settings = {"index": {"refresh_interval": "30s"}}
-                es.indices.put_settings(index=INDEX, body=interval_settings)
-                pass
-            else:
+            status = es.get(index=INDEX, doc_type='meta', id='indexing', ignore=[400, 404])
+            if status['found']:
                 last_xmin = status['_source']['xmin']
 
         result.update(
@@ -373,24 +370,26 @@ def index(request):
             if txn_count == 0:
                 return result
 
-            es.indices.refresh(index=INDEX)
-            res = es.search(index=INDEX, size=SEARCH_MAX, body={
-                'filter': {
-                    'or': [
-                        {
-                            'terms': {
-                                'embedded_uuids': updated,
-                                '_cache': False,
+            es.indices.refresh('_all')
+            res = es.search(index='_all', size=SEARCH_MAX, body={
+                    'query': {
+                        'bool': {
+                            'should': [
+                                {
+                                    'terms': {
+                                        'embedded_uuids': updated,
+                                        '_cache': False,
+                                },
+                            },
+                                {
+                                    'terms': {
+                                        'linked_uuids': renamed,
+                                        '_cache': False,
+                                        },
+                                    },
+                                ],
                             },
                         },
-                        {
-                            'terms': {
-                                'linked_uuids': renamed,
-                                '_cache': False,
-                            },
-                        },
-                    ],
-                },
                 '_source': False,
             })
             if res['hits']['total'] > SEARCH_MAX:
@@ -456,14 +455,10 @@ def index(request):
                         item['error_message'] = "Error occured during indexing, check the logs"
                 result['errors'] = error_messages
 
-            if es.indices.get_settings(index=INDEX)[INDEX]['settings']['index'].get('refresh_interval', '') != '1s':
-                interval_settings = {"index": {"refresh_interval": "1s"}}
-                es.indices.put_settings(index=INDEX, body=interval_settings)
-
-        es.indices.refresh(index=INDEX)
+        es.indices.refresh('_all')
         if flush:
             try:
-                es.indices.flush_synced(index=INDEX)  # Faster recovery on ES restart
+                es.indices.flush_synced(index='_all')  # Faster recovery on ES restart
             except ConflictError:
                 pass
 
@@ -518,6 +513,7 @@ def all_uuids(registry, types=None):
 class Indexer(object):
     def __init__(self, registry):
         self.es = registry[ELASTIC_SEARCH]
+        self.esstorage = registry[STORAGE]
         self.index = registry.settings['snovault.elasticsearch.index']
 
     def update_objects(self, request, uuids, xmin, snapshot_id=None, restart=False):
@@ -576,7 +572,7 @@ class Indexer(object):
                 time.sleep(backoff)
                 try:
                     self.es.index(
-                        index=self.index, doc_type=doc['item_type'], body=doc,
+                        index=doc['item_type'], doc_type=doc['item_type'], body=doc,
                         id=str(uuid), version=xmin, version_type='external_gte',
                         request_timeout=30,
                     )
@@ -601,6 +597,7 @@ class Indexer(object):
         return {'error_message': last_exc, 'timestamp': timestamp, 'uuid': str(uuid)}
 
     def update_audits(self, request, uuids, xmin, snapshot_id=None):
+        self.es.indices.refresh(index='_all')
         errors = []
         for i, uuid in enumerate(uuids):
             error = self.update_audit(request, uuid, xmin)
@@ -617,9 +614,10 @@ class Indexer(object):
         last_exc = None
         # First get the object currently in es
         try:
-            result = self.es.get(index=self.index, id=str(uuid), version=xmin, version_type='external_gte')
-            doc = result['_source']
+            result = self.esstorage.get_by_uuid(uuid)
+            doc = result.source
         except StatementError:
+            print('statement error')
             # Can't reconnect until invalid transaction is rolled back
             raise
         except Exception as e:
@@ -654,7 +652,7 @@ class Indexer(object):
                     time.sleep(backoff)
                     try:
                         self.es.index(
-                            index=self.index, doc_type=doc['item_type'], body=doc,
+                            index=doc['item_type'], doc_type=doc['item_type'], body=doc,
                             id=str(uuid), version=xmin, version_type='external_gte',
                             request_timeout=30,
                         )
