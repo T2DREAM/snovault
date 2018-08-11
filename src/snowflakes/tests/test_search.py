@@ -50,14 +50,14 @@ def test_set_filters():
     query = {
         'query': {
             'query_string': {}
-        },
+            },
         'post_filter': {
             'bool': {
                 'must': [],
                 'must_not': []
+                }
             }
         }
-    }
     result = {'filters': []}
     used_filters = set_filters(request, query, result)
 
@@ -65,29 +65,29 @@ def test_set_filters():
     assert query == {
         'query': {
             'query_string': {}
-        },
+            },
         'post_filter': {
             'bool': {
                 'must': [
                     {
                         'terms': {
                             'embedded.field1': ['value1'],
+                            },
                         },
-                    },
-                ],
+                    ],
                 'must_not': []
+                }
             }
         }
-    }
     assert result == {
         'filters': [
             {
                 'field': 'field1',
                 'term': 'value1',
                 'remove': '/search/?'
-            }
-        ]
-    }
+                }
+            ]
+        }
 
 
 def test_set_filters_searchTerm():
