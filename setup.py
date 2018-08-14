@@ -17,7 +17,7 @@ requires = [
     'botocore',
     'jmespath',
     'boto3',
-    'elasticsearch>=6.3',
+    'elasticsearch>=5.4',
     'lucenequery',
     'future',
     'humanfriendly',
