@@ -110,7 +110,6 @@ def test_json_basic_auth(anonhtmltestapp):
 
 
 def test_load_sample_data(
-        award,
         lab,
         submitter,
         snowball,
