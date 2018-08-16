@@ -374,31 +374,23 @@ def build_aggregation(facet_name, facet_options, min_doc_count=0):
     return agg_name, agg
 
 def set_facets(facets, used_filters, principals, doc_types):
-    """
-    Sets facets in the query using filters
-    """
     aggs = {}
     for facet_name, facet_options in facets:
         filters = [
             {'terms': {'principals_allowed.view': principals}},
             {'terms': {'embedded.@type': doc_types}},
-        ]
+            ]
         negative_filters = []
-        # Also apply any filters NOT from the same field as the facet
         for field, terms in used_filters.items():
             if field.endswith('!'):
                 query_field = field[:-1]
             else:
                 query_field = field
-        # if an option was selected in this facet,
-        # don't filter the facet to only include that option
+            
             if query_field == facet_name:
                 continue
-        
-        
             if not query_field.startswith('audit'):
                 query_field = 'embedded.' + query_field
-            
             if field.endswith('!'):
                 if terms == ['*']:
                     negative_filters.append({'exists': {'field': query_field}})
@@ -409,8 +401,8 @@ def set_facets(facets, used_filters, principals, doc_types):
                     filters.append({'exists': {'field': query_field}})
                 else:
                     filters.append({'terms': {query_field: terms}})
-        agg_name, agg = build_aggregation(facet_name, facet_options)
 
+        agg_name, agg = build_aggregation(facet_name, facet_options)
         aggs[agg_name] = {
             'aggs': {
                 agg_name: agg
@@ -419,10 +411,9 @@ def set_facets(facets, used_filters, principals, doc_types):
                 'bool': {
                     'must': filters,
                     'must_not': negative_filters
+                    },
                 },
-            },
-        }
-
+            }
     return aggs
 
 

@@ -546,20 +546,20 @@ def test_set_facets_type_exists():
                                 'bool': {
                                     'must': {
                                         'exists': {'field': 'embedded.field1'}
+                                        }
                                     }
-                                }
-                            },
+                                },
                             'no': {
                                 'bool': {
                                     'must_not': {
                                         'exists': {'field': 'embedded.field1'}
+                                        }
                                     }
                                 }
-                            }
+                            },
                         },
                     },
                 },
-            },
             'filter': {
                 'bool': {
                     'must': [
@@ -568,10 +568,10 @@ def test_set_facets_type_exists():
                     ],
                     'must_not': [
                         {'exists': {'field': 'embedded.field2'}}
-                    ]
+                        ]
+                    },
                 },
             },
-        },
         'field2': {
             'aggs': {
                 'field2': {
@@ -581,32 +581,32 @@ def test_set_facets_type_exists():
                                 'bool': {
                                     'must': {
                                         'exists': {'field': 'embedded.field2'}
+                                        }
                                     }
-                                }
-                            },
+                                },
                             'no': {
                                 'bool': {
                                     'must_not': {
                                         'exists': {'field': 'embedded.field2'}
+                                        }
                                     }
                                 }
-                            }
+                            },
                         },
                     },
                 },
-            },
             'filter': {
                 'bool': {
                     'must': [
                         {'terms': {'principals_allowed.view': ['group.admin']}},
                         {'terms': {'embedded.@type': ['Snowball']}},
                         {'exists': {'field': 'embedded.field1'}},
-                    ],
+                        ],
                     'must_not': []
+                    },
                 },
             },
-        },
-    } == aggs
+        } == aggs
 
 
 def test_format_facets():
