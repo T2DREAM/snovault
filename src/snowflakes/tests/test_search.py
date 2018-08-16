@@ -195,7 +195,7 @@ def test_set_filters_multivalued():
     result = {'filters': []}
     used_filters = set_filters(request, query, result)
 
-    assert used_filters == {'field1': ['value1']}
+    assert used_filters == {'field1': ['value1','value2']}
     assert query == {
         'query': {
             'query_string': {}
