@@ -4,7 +4,11 @@ SnoVault JSON-LD Database Framework
 
 |Build status|_
 
+<<<<<<< HEAD
 .. |Build status| image:: https://travis-ci.org/snovault.png?branch=master
+=======
+.. |Build status| image:: https://travis-ci.org/T2DREAM/snovault.png?branch=master
+>>>>>>> 4e22f0f469491f8f8b41ff7d24cbd37cf77ed2c0
 .. _Build status: https://travis-ci.org/T2DREAM/snovault
 
 Installation Instructions
