@@ -81,7 +81,6 @@ def listening_conn(dbapi_conn):
 
 
 def test_indexing_simple(testapp, indexer_testapp):
-    # First post a single item so that subsequent indexing is incremental
     testapp.post_json('/testing-post-put-patch/', {'required': ''})
     res = indexer_testapp.post_json('/index', {'record': True})
     assert res.json['indexed'] == 1
