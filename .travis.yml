@@ -60,7 +60,7 @@ before_install:
 - npm config set python /usr/bin/python2.7
 - pip install -U zc.buildout setuptools
 install:
-- python bootstrap.py --buildout-version 2.12.11 --setuptools-version 18.5
+- python bootstrap.py --buildout-version 2.12.1 --setuptools-version 18.5
 - bin/buildout -c buildout-travis.cfg || (echo "Retrying buildout" && bin/buildout
   -c buildout-travis.cfg)
 
