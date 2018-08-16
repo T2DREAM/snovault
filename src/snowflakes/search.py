@@ -397,23 +397,23 @@ def set_facets(facets, used_filters, principals, doc_types):
                 query_field = field
         # if an option was selected in this facet,
         # don't filter the facet to only include that option
-        if query_field == facet_name:
-            continue
+            if query_field == facet_name:
+                continue
         
         
-        if not query_field.startswith('audit'):
-            query_field = 'embedded.' + query_field
+            if not query_field.startswith('audit'):
+                query_field = 'embedded.' + query_field
             
-        if field.endswith('!'):
-            if terms == ['*']:
-                negative_filters.append({'exists': {'field': query_field}})
+            if field.endswith('!'):
+                if terms == ['*']:
+                    negative_filters.append({'exists': {'field': query_field}})
+                else:
+                    negative_filters.append({'terms': {query_field: terms}})
             else:
-                negative_filters.append({'terms': {query_field: terms}})
-        else:
-            if terms == ['*']:
-                filters.append({'exists': {'field': query_field}})
-            else:
-                filters.append({'terms': {query_field: terms}})
+                if terms == ['*']:
+                    filters.append({'exists': {'field': query_field}})
+                else:
+                    filters.append({'terms': {query_field: terms}})
         agg_name, agg = build_aggregation(facet_name, facet_options)
 
         aggs[agg_name] = {
