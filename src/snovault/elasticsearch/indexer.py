@@ -42,7 +42,7 @@ class IndexerState(object):
     # Keeps track of uuids and indexer state by cycle.  Also handles handoff of uuids to followup indexer
     def __init__(self, es, index, title='primary'):
         self.es = es
-        self.key = index  # "indexerstate"
+        self.index = index  # "indexerstate"
 
         self.title           = title
         self.state_id        = self.title + '_indexer'       # State of the current or last cycle
