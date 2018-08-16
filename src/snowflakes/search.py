@@ -275,9 +275,6 @@ def build_terms_filter(query_filters, field, terms, query):
         query_filters['must'].append(filter_condition)
 
 def set_filters(request, query, result, static_items=None):
-    """
-    Sets filters in the query
-    """
     query_filters = query['post_filter']['bool']
     used_filters = {}
     if static_items is None:
@@ -326,8 +323,6 @@ def set_filters(request, query, result, static_items=None):
 
         # Add filter to query
         build_terms_filter(query_filters, field, terms, query)
-
-        used_filters[field].append(term)
     return used_filters
 
 def build_aggregation(facet_name, facet_options, min_doc_count=0):
