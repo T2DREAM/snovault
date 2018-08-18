@@ -154,7 +154,7 @@ class TestingPostPutPatch(Item):
                 "pattern": "^\\d+(\\.\\d+)*$",
                 "requestMethod": [],
                 "default": "1",
-            },
+                },
             "uuid": {
                 "title": "UUID",
                 "description": "",
@@ -162,33 +162,30 @@ class TestingPostPutPatch(Item):
                 "format": "uuid",
                 "permission": "import_items",
                 "requestMethod": "POST",
-            },
+                },
             'required': {
                 'type': 'string',
-            },
+                },
             'simple1': {
                 'type': 'string',
                 'default': 'simple1 default',
-            },
+                },
             'simple2': {
                 'type': 'string',
                 'default': 'simple2 default',
-            },
+                },
             'protected': {
-                # This should be allowed on PUT so long as value is the same
                 'type': 'string',
                 'default': 'protected default',
                 'permission': 'import_items',
-            },
+                },
             'protected_link': {
-                # This should be allowed on PUT so long as the linked uuid is
-                # the same
                 'type': 'string',
                 'linkTo': 'TestingLinkTarget',
                 'permission': 'import_items',
-            },
+                },
+            }
         }
-    }
 
 
 @collection('testing-server-defaults')
