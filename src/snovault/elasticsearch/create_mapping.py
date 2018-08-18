@@ -407,11 +407,8 @@ def type_mapping(types, item_type, embed=True):
 
             s = reduce(combine_schemas, (types[t].schema for t in ref_types))
 
-            # Check if mapping for property is already an object
-            # multiple subobjects may be embedded, so be carful here
             if m['properties'][p]['type'] in ['keyword', 'text']:
                 m['properties'][p] = schema_mapping(p, s)
-
             m = m['properties'][p]
 
     boost_values = schema.get('boost_values', None)
