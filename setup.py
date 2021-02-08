@@ -17,7 +17,7 @@ requires = [
     'botocore',
     'jmespath',
     'boto3',
-    'elasticsearch',
+    'elasticsearch>=5.2',
     'lucenequery',
     'future',
     'humanfriendly',
@@ -61,7 +61,7 @@ tests_require = [
 
 setup(
     name='snovault',
-    version='0.24',
+    version='1.0.5',
     description='Snovault Hybrid Object Relational Database Framework',
     long_description=README + '\n\n' + CHANGES,
     packages=find_packages('src'),

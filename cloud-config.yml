@@ -190,7 +190,7 @@ runcmd:
 - /etc/init.d/postgresql start
 - sudo -u snowflakes python3.4 bootstrap.py --buildout-version 2.4.1 --setuptools-version 18.5
 - sudo -u snowflakes LANG=en_US.UTF-8 bin/buildout -c %(ROLE)s.cfg
-- sudo -u snowflakes bin/aws s3 cp --recursive s3://encoded-conf-prod/.aws .aws
+- sudo -u snowflakes bin/aws s3 cp --recursive s3://t2depi-conf-prod/.aws .aws
 ## TODO this conf needs be copied to something more generic
 - until sudo -u postgres psql postgres -c ""; do sleep 10; done
 - sudo -u snowflakes sh -c 'cat /dev/urandom | head -c 256 | base64 > session-secret.b64'

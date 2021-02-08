@@ -190,7 +190,7 @@ runcmd:
 - sudo -u postgres ln -s /etc/postgresql/9.3/main/recovery.conf /var/lib/postgresql/9.3/main/
 - /etc/init.d/postgresql start
 - sudo -u snowflakes python3.4 bootstrap.py --buildout-version 2.4.1 --setuptools-version 18.1
-- sudo -u snowflakes bin/aws s3 cp --recursive s3://encoded-conf-prod/.aws .aws
+- sudo -u snowflakes bin/aws s3 cp --recursive s3://t2depi-conf-prod/.aws .aws
 - until sudo -u postgres psql postgres -c ""; do sleep 10; done
 - sudo -u snowflakes sh -c 'cat /dev/urandom | head -c 256 | base64 > session-secret.b64'
 - sudo -u snowflakes bin/create-mapping production.ini --app-name app
@@ -272,13 +272,15 @@ write_files:
 
     discovery.ec2.groups: elasticsearch-https, ssh-http-https
 
+    indices.query.bool.max_clause_count: 8192
+
     # discovery.zen.minimum_master_nodes: 2
 
 - path: /etc/elasticsearch/cluster.sh
   content: |
     #!/bin/bash
     name=$1
-    
+
     if [[ -n "$name" ]]; then
         echo "cluster.name: $name" >> /etc/elasticsearch/elasticsearch.yml
     else
