@@ -1,4 +1,4 @@
-[versions]
+ersions]
 # Added by buildout at 2016-03-26 10:52:20.106432
 MarkupSafe = 0.23
 PasteDeploy = 1.5.2
@@ -83,7 +83,7 @@ html5lib = 1.0b8
 
 # Required by:
 # encoded==0.1
-future = 0.18.2
+future = 0.15.2
 
 # Required by:
 # pytest-bdd==2.16.1
