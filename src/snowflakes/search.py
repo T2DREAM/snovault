@@ -315,7 +315,7 @@ def set_filters(request, query, result, static_items=None):
 
         terms = all_terms[field]
         if field in ['type', 'limit', 'y.limit', 'x.limit', 'mode', 'annotation',
-                     'format', 'embedding', 'frame', 'datastore', 'field', 'region', 'genome',
+                     'format', 'embedding', 'perturbation', 'model', 'frame', 'datastore', 'field', 'region', 'genome',
                      'sort', 'from', 'referrer']:
             continue
 
