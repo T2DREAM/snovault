@@ -118,7 +118,6 @@ runcmd:
 -    sysctl "vm.swappiness=1"
 -    swapon /swapfile
 - fi
-- set -ex
 - update-rc.d elasticsearch defaults
 - sudo bash /etc/elasticsearch/cluster.sh %(CLUSTER_NAME)s
 - sudo /usr/share/elasticsearch/bin/plugin install discovery-ec2
